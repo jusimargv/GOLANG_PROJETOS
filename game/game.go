@@ -2,7 +2,9 @@ package game
 
 import (
 	"fmt"
-
+	"image/color"
+	"my-game/assets"
+	"github.com/hajimehoshi/ebiten/v2/text"
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
@@ -11,6 +13,7 @@ type Game struct {
 	lasers  []*Laser
 	meteors []*Meteor
 	meteorSpawTimer *Timer
+	score         int
 }
 
 func NewGame() *Game {
@@ -54,10 +57,19 @@ func (g *Game) Update() error {
 		}
 
 		for i, m := range(g.meteors){
-			for i, l := range(g.lasers){
 
 
-				if (m.Collider().Intersects(g.player.Collider())){
+			for j, l := range(g.lasers){
+
+
+				if (m.Collider().Intersects(l.Collider())){
+
+					g.meteors = append(g.meteors[:i], g.meteors[i+1:]...)
+
+
+					g.lasers = append(g.lasers[:j], g.lasers[j+1:]...)
+
+					g.score += 1
 					
 				}
 			
@@ -81,6 +93,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		m.Draw(screen)
 	}
 
+	 // Draw score
+    text.Draw(screen, fmt.Sprintf("Score : %d", g.score), assets.FontUi, 20, 100, color.White)
+
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
@@ -99,4 +114,5 @@ func (g *Game) Reset() {
 	g.meteors = nil
     g.lasers = nil
 	g.meteorSpawTimer.Reset()
+	g.score = 0
 }
